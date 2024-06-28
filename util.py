@@ -1,7 +1,11 @@
 import json
 import math
 import random
+from binascii import hexlify
 
+from Crypto.Cipher import AES, PKCS1_v1_5
+from Crypto.PublicKey import RSA
+from Crypto.Util.Padding import pad
 from loguru import logger
 
 
@@ -54,22 +58,43 @@ class Enc:
 
 class W:
     @logger.catch
-    def __init__(self, key: str, gt: str, challenge: str, c: str, s: str, aeskey: str) -> None:
+    def __init__(self, key: str, gt: str, challenge: str, c: str, s: str) -> None:
         self.key = key
         self.gt = gt
         self.challenge = challenge
         self.c = c
         self.s = s
-        self.aeskey = aeskey
+        self.aeskey = self.Key()
+
+    def Key(self) -> bytes:
+        var = []
+        for _ in range(4):
+            random_value = int(65536 * (1 + random.random()))
+            hex = format(random_value, "04x")[1:]
+            var.append(hex)
+        dist = ("".join(var)).encode()
+        return dist
 
     @logger.catch
     def RSA(self, data: str) -> str:
-        return data
+        k = int(
+            "00C1E3934D1614465B33053E7F48EE4EC87B14B95EF88947713D25EECBFF7E74C7977D02DC1D9451F79DD5D1C10C29ACB6A9B4D6FB7D0A0279B6719E1772565F09AF627715919221AEF91899CAE08C0D686D748B20A3603BE2318CA6BC2B59706592A9219D0BF05C9F65023A21D2330807252AE0066D59CEEFA5F2748EA80BAB81",
+            16,
+        )
+        e = int("010001", 16)
+        pubKey = RSA.construct((k, e))
+        cipher = PKCS1_v1_5.new(pubKey)
+        encryptedData = cipher.encrypt(data.encode())
+        encryptedHex = hexlify(encryptedData)
+        return encryptedHex.decode()
 
     @logger.catch
     def AES(self, data: str) -> list:
-        aeskey = self.aeskey
-        return [aeskey]
+        iv = b"0000000000000000"
+        cipher = AES.new(self.aeskey, AES.MODE_CBC, iv)
+        pad_pkcs7 = pad(data.encode(), AES.block_size, style="pkcs7")
+        encrypted = cipher.encrypt(pad_pkcs7)
+        return [encrypted[i] for i in range(len(encrypted))]
 
     @logger.catch
     def Calculate(self) -> str:
@@ -120,7 +145,7 @@ class W:
         params = json.dumps(dic)
 
         # u = xxxxx
-        u = self.RSA(self.aeskey)
+        u = self.RSA(self.aeskey.decode())
         # h = [116,13,253,xxxxxxxxxxxxxxxx,70,100]
         h = self.AES(data=params)
         # aewrhtjyksudlyi;ulkutyjrhtegwfqed eergty
