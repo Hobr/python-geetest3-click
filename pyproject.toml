@@ -1,0 +1,43 @@
+[tool.poetry]
+name = "python-geetest3-click"
+version = "1.0.0"
+description = "极验3代点字"
+authors = ["Hobr"]
+license = "GPL3.0"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"
+httpx = {extras = ["http2", "socks"], version = "^0.27.0"}
+loguru = "^0.7.2"
+bili-ticket-gt-python = "^0.2.2"
+pycryptodome = "^3.20.0"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.13.2"
+black = "^24.4.2"
+flake8 = "^7.0.0"
+pylint = "^3.2.4"
+pyupgrade = "^3.15.2"
+snakeviz = "^2.2.0"
+
+[tool.isort]
+profile = "black"
+line_length = 90
+skip = [".git", "__pycache__", ".venv",".direnv"]
+
+[tool.black]
+line-length = 90
+skip = [".git", "__pycache__", ".venv",".direnv"]
+
+[tool.flake8]
+max-line-length = 90
+exclude = [".git", "__pycache__", ".venv",".direnv"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
