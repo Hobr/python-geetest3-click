@@ -9,14 +9,26 @@ from Crypto.Util.Padding import pad
 from loguru import logger
 
 
-class Enc:
+class W:
+    @logger.catch
+    def __init__(self, key: str, gt: str, challenge: str, c: str, s: str) -> None:
+        self.key = key
+        self.gt = gt
+        self.challenge = challenge
+        self.c = c
+        self.s = s
+        self.aeskey = self.Key()
+
+    @logger.catch
     def _JGH(self, e) -> str:
         t = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789()"
         return "." if e < 0 or e >= len(t) else t[e]
 
+    @logger.catch
     def _JIY(self, e, t) -> int:
         return (e >> t) & 1
 
+    @logger.catch
     def _JJM(self, e) -> dict:
         def t(e, t):
             n = 0
@@ -51,21 +63,12 @@ class Enc:
             s += 3
         return {"res": n, "end": r}
 
-    def encode(self, e) -> str:
+    @logger.catch
+    def Enc(self, e) -> str:
         t = self._JJM(e)
         return t["res"] + t["end"]
 
-
-class W:
     @logger.catch
-    def __init__(self, key: str, gt: str, challenge: str, c: str, s: str) -> None:
-        self.key = key
-        self.gt = gt
-        self.challenge = challenge
-        self.c = c
-        self.s = s
-        self.aeskey = self.Key()
-
     def Key(self) -> bytes:
         var = []
         for _ in range(4):
@@ -101,45 +104,54 @@ class W:
         dic = {
             "lang": "zh-cn",
             "passtime": math.floor((random.random() * 500) + 4000),
-            "a": "5363_8046,3130_3310,6599_4788",  # 点选位置, e
-            "pic": "/captcha_v3/batch/v3/74760/2024-06-29T01/word/xxx.jpg",
-            "tt": "xxxM4W8Pxxxx",  # s
+            "a": self.key,  # 点选位置, e
+            "tt": "",  # tt_c
             "ep": {
-                "ca": [  # 规矩
-                    {"x": 1014, "y": 306, "t": 1, "dt": 2745},
-                    {"x": 940, "y": 149, "t": 1, "dt": 393},
-                    {"x": 1055, "y": 198, "t": 1, "dt": 691},
-                    {"x": 1122, "y": 395, "t": 3, "dt": 646},
-                ],
-                "v": "3.1.0",
-                "$_FB": False,
+                "v": "9.1.8-bfget5",
+                "$_E_": False,
                 "me": True,
-                "tm": {  # 性能
-                    "a": 1714499620351,
-                    "b": 1714499620593,
-                    "c": 1714499620593,
+                "ven": "Google Inc. (Intel)",
+                "ren": "ANGLE (Intel, Intel(R) HD Graphics 520 Direct3D11 vs_5_0 ps_5_0, D3D11)",
+                "fp": ["move", 483, 149, 1702019849214, "pointermove"],
+                "lp": ["up", 657, 100, 1702019852230, "pointerup"],
+                "em": {
+                    "ph": 0,
+                    "cp": 0,
+                    "ek": "11",
+                    "wd": 1,
+                    "nt": 0,
+                    "si": 0,
+                    "sc": 0,
+                },
+                "tm": {
+                    "a": 1702019845759,
+                    "b": 1702019845951,
+                    "c": 1702019845951,
                     "d": 0,
                     "e": 0,
-                    "f": 1714499620357,
-                    "g": 1714499620357,
-                    "h": 1714499620357,
-                    "i": 1714499620357,
-                    "j": 1714499620357,
-                    "k": 1714499620357,
-                    "l": 1714499620357,
-                    "m": 1714499620574,
-                    "n": 1714499620593,
-                    "o": 1714499620593,
-                    "p": 1714499620702,
-                    "q": 1714499620709,
-                    "r": 1714499620757,
-                    "s": 1714499620759,
-                    "t": 1714499620759,
-                    "u": 1714499620776,
+                    "f": 1702019845763,
+                    "g": 1702019845785,
+                    "h": 1702019845785,
+                    "i": 1702019845785,
+                    "j": 1702019845845,
+                    "k": 1702019845812,
+                    "l": 1702019845845,
+                    "m": 1702019845942,
+                    "n": 1702019845946,
+                    "o": 1702019845954,
+                    "p": 1702019846282,
+                    "q": 1702019846282,
+                    "r": 1702019846287,
+                    "s": 1702019846288,
+                    "t": 1702019846288,
+                    "u": 1702019846288,
                 },
+                "dnf": "dnf",
+                "by": 0,
             },
             "h9s9": "1816378497",
-            "rp": "059b65ecc532496663c442cbd2196e9d",  # ?
+            # X(gt + challenge["slice"](0, 32) + 1600)
+            "rp": "059b65ecc532496663c442cbd2196e9d",
         }
 
         params = json.dumps(dic)
@@ -148,7 +160,7 @@ class W:
         u = self.RSA(self.aeskey.decode())
         # h = [116,13,253,xxxxxxxxxxxxxxxx,70,100]
         h = self.AES(data=params)
-        # aewrhtjyksudlyi;ulkutyjrhtegwfqed eergty
-        p = Enc().encode(h)
+        # aewrhtjyksudlyi;ulkutyjrhtegwfqed eergtyg
+        p = self.Enc(h)
         w = p + u
         return w
