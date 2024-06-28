@@ -12,7 +12,7 @@ pip install poetry virtualenv pre-commit
 
 virtualenv venv
 source venv/script/activate
-poetry install --with dev
+poetry install
 pre-commit install
 
 # 更新
