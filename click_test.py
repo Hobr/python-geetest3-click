@@ -18,7 +18,7 @@ for _i in range(50):
         (c, s, args) = click.get_new_c_s_args(gt, challenge)
         before_calculate_key = time.time()
         key = click.calculate_key(args)
-        w = W(key=key, gt=gt, challenge=challenge, c=str(c), s=s).Calculate()
+        w = W(key=key, gt=gt, challenge=challenge, c=str(c), s=s).ClickCalculate()
         print(w)
         w_use_time = time.time() - before_calculate_key
         print(f"w生成时间: {w_use_time}")

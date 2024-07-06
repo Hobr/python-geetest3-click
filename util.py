@@ -64,7 +64,7 @@ class W:
         return {"res": n, "end": r}
 
     @logger.catch
-    def Enc(self, e) -> str:
+    def Enc(self, e:list) -> str:
         t = self._JJM(e)
         return t["res"] + t["end"]
 
@@ -100,7 +100,20 @@ class W:
         return [encrypted[i] for i in range(len(encrypted))]
 
     @logger.catch
-    def Calculate(self) -> str:
+    def Encrypt(self, dic: dict) -> str:
+        params = json.dumps(dic)
+
+        # u = xxxxx
+        u = self.RSA(self.aeskey.decode())
+        # h = [116,13,253,xxxxxxxxxxxxxxxx,70,100]
+        h = self.AES(data=params)
+        # aewrhtjyksudlyi;ulkutyjrhtegwfqed eergtyg
+        p = self.Enc(h)
+        w = p + u
+        return w
+
+    @logger.catch
+    def ClickCalculate(self) -> str:
         dic = {
             "lang": "zh-cn",
             "passtime": math.floor((random.random() * 500) + 4000),
@@ -153,14 +166,4 @@ class W:
             # X(gt + challenge["slice"](0, 32) + 1600)
             "rp": "059b65ecc532496663c442cbd2196e9d",
         }
-
-        params = json.dumps(dic)
-
-        # u = xxxxx
-        u = self.RSA(self.aeskey.decode())
-        # h = [116,13,253,xxxxxxxxxxxxxxxx,70,100]
-        h = self.AES(data=params)
-        # aewrhtjyksudlyi;ulkutyjrhtegwfqed eergtyg
-        p = self.Enc(h)
-        w = p + u
-        return w
+        return self.Encrypt(dic)
