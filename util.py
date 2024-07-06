@@ -64,7 +64,7 @@ class W:
         return {"res": n, "end": r}
 
     @logger.catch
-    def Enc(self, e:list) -> str:
+    def Enc(self, e: list) -> str:
         t = self._JJM(e)
         return t["res"] + t["end"]
 
@@ -164,6 +164,62 @@ class W:
             },
             "h9s9": "1816378497",
             # X(gt + challenge["slice"](0, 32) + 1600)
+            "rp": "059b65ecc532496663c442cbd2196e9d",
+        }
+        return self.Encrypt(dic)
+
+    @logger.catch
+    def SlideCalculate(self) -> str:
+        dic = {
+            "lang": "zh-cn",
+            "passtime": 1600,
+            "imgload": random.randint(100, 200),
+            "a": self.key,  # 点选位置
+            "tt": "",
+            "ep": {
+                "v": "9.1.8-bfget5",
+                "$_E_": False,
+                "me": True,
+                "ven": "Google Inc. (Intel)",
+                "ren": "ANGLE (Intel, Intel(R) HD Graphics 520 Direct3D11 vs_5_0 ps_5_0, D3D11)",
+                "fp": ["move", 483, 149, 1702019849214, "pointermove"],
+                "lp": ["up", 657, 100, 1702019852230, "pointerup"],
+                "em": {
+                    "ph": 0,
+                    "cp": 0,
+                    "ek": "11",
+                    "wd": 1,
+                    "nt": 0,
+                    "si": 0,
+                    "sc": 0,
+                },
+                "tm": {
+                    "a": 1702019845759,
+                    "b": 1702019845951,
+                    "c": 1702019845951,
+                    "d": 0,
+                    "e": 0,
+                    "f": 1702019845763,
+                    "g": 1702019845785,
+                    "h": 1702019845785,
+                    "i": 1702019845785,
+                    "j": 1702019845845,
+                    "k": 1702019845812,
+                    "l": 1702019845845,
+                    "m": 1702019845942,
+                    "n": 1702019845946,
+                    "o": 1702019845954,
+                    "p": 1702019846282,
+                    "q": 1702019846282,
+                    "r": 1702019846287,
+                    "s": 1702019846288,
+                    "t": 1702019846288,
+                    "u": 1702019846288,
+                },
+                "dnf": "dnf",
+                "by": 0,
+            },
+            #  X(gt + challenge["slice"](0, 32) + 1600)
             "rp": "059b65ecc532496663c442cbd2196e9d",
         }
         return self.Encrypt(dic)
