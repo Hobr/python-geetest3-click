@@ -1,7 +1,7 @@
 import json
-import math
 import random
 from binascii import hexlify
+from hashlib import md5
 
 from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.PublicKey import RSA
@@ -72,8 +72,8 @@ class W:
     def Key(self) -> bytes:
         var = []
         for _ in range(4):
-            random_value = int(65536 * (1 + random.random()))
-            hex = format(random_value, "04x")[1:]
+            randomValue = int(65536 * (1 + random.random()))
+            hex = format(randomValue, "04x")[1:]
             var.append(hex)
         dist = ("".join(var)).encode()
         return dist
@@ -95,8 +95,8 @@ class W:
     def AES(self, data: str) -> list:
         iv = b"0000000000000000"
         cipher = AES.new(self.aeskey, AES.MODE_CBC, iv)
-        pad_pkcs7 = pad(data.encode(), AES.block_size, style="pkcs7")
-        encrypted = cipher.encrypt(pad_pkcs7)
+        padPkcs7 = pad(data.encode(), AES.block_size, style="pkcs7")
+        encrypted = cipher.encrypt(padPkcs7)
         return [encrypted[i] for i in range(len(encrypted))]
 
     @logger.catch
@@ -114,9 +114,13 @@ class W:
 
     @logger.catch
     def ClickCalculate(self) -> str:
+        passtime = random.randint(1300, 2000)
+        m5 = md5()
+        m5.update((self.gt + self.challenge + str(passtime)).encode())
+        rp = m5.hexdigest()
         dic = {
             "lang": "zh-cn",
-            "passtime": math.floor((random.random() * 500) + 4000),
+            "passtime": passtime,
             "a": self.key,  # 点选位置, e
             "tt": "",  # tt_c
             "ep": {
@@ -163,63 +167,56 @@ class W:
                 "by": 0,
             },
             "h9s9": "1816378497",
-            # X(gt + challenge["slice"](0, 32) + 1600)
-            "rp": "059b65ecc532496663c442cbd2196e9d",
+            "rp": rp,
         }
         return self.Encrypt(dic)
 
     @logger.catch
     def SlideCalculate(self) -> str:
+        passtime = random.randint(1300, 2000)
+        m5 = md5()
+        m5.update((self.gt + self.challenge + str(passtime)).encode())
+        rp = m5.hexdigest()
         dic = {
             "lang": "zh-cn",
-            "passtime": 1600,
-            "imgload": random.randint(100, 200),
-            "a": self.key,  # 点选位置
-            "tt": "",
+            # 缺口位置距离 +  challenge
+            "userresponse": "b040b0b4416ac",
+            # 消耗时间
+            "passtime": passtime,
+            # 加载数据
+            "imgload": random.randint(70, 150),
+            # 滑动轨迹的加密字符
+            "aa": self.key,
             "ep": {
-                "v": "9.1.8-bfget5",
-                "$_E_": False,
+                "v": "7.9.2",
+                "$_BIE": False,
                 "me": True,
-                "ven": "Google Inc. (Intel)",
-                "ren": "ANGLE (Intel, Intel(R) HD Graphics 520 Direct3D11 vs_5_0 ps_5_0, D3D11)",
-                "fp": ["move", 483, 149, 1702019849214, "pointermove"],
-                "lp": ["up", 657, 100, 1702019852230, "pointerup"],
-                "em": {
-                    "ph": 0,
-                    "cp": 0,
-                    "ek": "11",
-                    "wd": 1,
-                    "nt": 0,
-                    "si": 0,
-                    "sc": 0,
-                },
                 "tm": {
-                    "a": 1702019845759,
-                    "b": 1702019845951,
-                    "c": 1702019845951,
+                    "a": 1720326755214,
+                    "b": 0,
+                    "c": 0,
                     "d": 0,
                     "e": 0,
-                    "f": 1702019845763,
-                    "g": 1702019845785,
-                    "h": 1702019845785,
-                    "i": 1702019845785,
-                    "j": 1702019845845,
-                    "k": 1702019845812,
-                    "l": 1702019845845,
-                    "m": 1702019845942,
-                    "n": 1702019845946,
-                    "o": 1702019845954,
-                    "p": 1702019846282,
-                    "q": 1702019846282,
-                    "r": 1702019846287,
-                    "s": 1702019846288,
-                    "t": 1702019846288,
-                    "u": 1702019846288,
+                    "f": 1720326755214,
+                    "g": 1720326755214,
+                    "h": 1720326755214,
+                    "i": 1720326755309,
+                    "j": 1720326755685,
+                    "k": 1720326755310,
+                    "l": 1720326755685,
+                    "m": 1720326756051,
+                    "n": 1720326756051,
+                    "o": 1720326756080,
+                    "p": 1720326756689,
+                    "q": 1720326756689,
+                    "r": 1720326756694,
+                    "s": 1720326756694,
+                    "t": 1720326756694,
+                    "u": 1720326756695,
                 },
-                "dnf": "dnf",
-                "by": 0,
+                "td": -1,
             },
-            #  X(gt + challenge["slice"](0, 32) + 1600)
-            "rp": "059b65ecc532496663c442cbd2196e9d",
+            "h9s9": "1816378497",
+            "rp": rp,
         }
         return self.Encrypt(dic)
