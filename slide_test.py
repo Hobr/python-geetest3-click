@@ -18,8 +18,8 @@ try:
     # 此函数是使用项目目录下的slide.exe生成w参数，如果文件不存在会报错，你也可以自己接入生成w的逻辑函数
     print(f"key: {key}, gt: {gt}, challenge: {challenge}, c: {c}, s: {s}")
     w = W(key=key, gt=gt, challenge=challenge, c=str(c), s=s).SlideCalculate()
-    print(w)
     # w = slide.generate_w(key, gt, challenge, str(c), s, "abcdefghijklmnop")
+    print(w)
     (msg, validate) = slide.verify(gt, challenge, w)
     print(validate)
 except Exception as e:

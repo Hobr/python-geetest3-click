@@ -115,9 +115,11 @@ class W:
     @logger.catch
     def ClickCalculate(self) -> str:
         passtime = random.randint(1300, 2000)
+
         m5 = md5()
         m5.update((self.gt + self.challenge[:-2] + str(passtime)).encode())
         rp = m5.hexdigest()
+
         dic = {
             "lang": "zh-cn",
             "passtime": passtime,
@@ -174,19 +176,32 @@ class W:
     @logger.catch
     def SlideCalculate(self) -> str:
         passtime = random.randint(1300, 2000)
+
         m5 = md5()
         m5.update((self.gt + self.challenge[:-2] + str(passtime)).encode())
         rp = m5.hexdigest()
+
+        track = [
+            [-33, -36, 0],
+            [0, 0, 0],
+            [1, 0, 6],
+            [2, 0, 30],
+            [2, -1, 38],
+            [4, -1, 134],
+            [4, -1, 159],
+            [4, -1, 239],
+        ]
+
         dic = {
             "lang": "zh-cn",
-            # 缺口位置距离 +  challenge
+            # userresponse(self.key +  challenge)
             "userresponse": "",
-            # 消耗时间
+            # n=消耗时间
             "passtime": passtime,
             # 加载数据
             "imgload": random.randint(70, 150),
-            # 滑动轨迹的加密字符
-            "aa": self.key,
+            # aa(track, self.c, self.s),
+            "aa": "",
             "ep": {
                 "v": "7.9.2",
                 "$_BIE": False,

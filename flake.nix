@@ -30,6 +30,7 @@
                 stdenv.cc.cc.lib
                 graphviz
                 pre-commit
+                nodejs
               ]
               ++ (with pkgs.python312Packages; [
                 pip
