@@ -116,7 +116,7 @@ class W:
     def ClickCalculate(self) -> str:
         passtime = random.randint(1300, 2000)
         m5 = md5()
-        m5.update((self.gt + self.challenge + str(passtime)).encode())
+        m5.update((self.gt + self.challenge[:-2] + str(passtime)).encode())
         rp = m5.hexdigest()
         dic = {
             "lang": "zh-cn",
@@ -175,7 +175,7 @@ class W:
     def SlideCalculate(self) -> str:
         passtime = random.randint(1300, 2000)
         m5 = md5()
-        m5.update((self.gt + self.challenge + str(passtime)).encode())
+        m5.update((self.gt + self.challenge[:-2] + str(passtime)).encode())
         rp = m5.hexdigest()
         dic = {
             "lang": "zh-cn",
