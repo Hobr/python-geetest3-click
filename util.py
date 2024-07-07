@@ -180,7 +180,7 @@ class W:
         dic = {
             "lang": "zh-cn",
             # 缺口位置距离 +  challenge
-            "userresponse": "b040b0b4416ac",
+            "userresponse": "",
             # 消耗时间
             "passtime": passtime,
             # 加载数据
