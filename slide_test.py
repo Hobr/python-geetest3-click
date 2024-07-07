@@ -5,7 +5,7 @@ from util import W
 slide = bili_ticket_gt_python.SlidePy()
 
 try:
-    (gt, challenge) = slide.register_test("https://www.geetest.com/demo/gt/register-slide-official?t={}")
+    (gt, challenge) = slide.register_test("http://127.0.0.1:5000/pc-geetest/register")
     (_, _) = slide.get_c_s(gt, challenge)
     _type = slide.get_type(gt, challenge)
     if _type != "slide":
