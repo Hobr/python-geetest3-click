@@ -65,18 +65,6 @@ class GeetestBase:
         result = self._encode_chunk(data)
         return result['res'] + result['end']
 
-    def key(self) -> bytes:
-        """生成随机密钥：4组3位十六进制字符串拼接"""
-        var = []
-        for _ in range(4):
-            # 生成0x0000-0xFFFF之间的随机数（可能超过，但按原逻辑处理）
-            rand_val = int(65536 * (1 + random.random()))
-            # 格式化为4位十六进制并取后3位
-            hex_str = format(rand_val, '04x')[1:]
-            var.append(hex_str)
-        return ''.join(var).encode()
-
-
 class W:
     @logger.catch
     def __init__(self, key: str, gt: str, challenge: str, c: str, s: str) -> None:
