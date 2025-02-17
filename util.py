@@ -8,6 +8,74 @@ from Crypto.PublicKey import RSA
 from Crypto.Util.Padding import pad
 from loguru import logger
 
+class GeetestBase:
+    # 自定义Base64字符集，使用标准Base64的变体（包含()代替+/）
+    CUSTOM_BASE64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789()"
+
+    # 预定义每个6位段对应的位位置（从高位到低位）
+    # 掩码转换为对应的位位置列表，用于直接提取所需的6位
+    _PART1_BITS = [22, 21, 19, 18, 17, 16]  # 掩码7274496 (0x6F0000)
+    _PART2_BITS = [23, 20, 15, 13, 12, 10]  # 掩码9483264 (0x90B400)
+    _PART3_BITS = [14, 11, 9, 8, 4, 2]      # 掩码19220 (0x4B14)
+    _PART4_BITS = [7, 6, 5, 3, 1, 0]         # 掩码235 (0xEB)
+
+    def _get_base64_char(self, index: int) -> str:
+        """返回自定义Base64字符集中对应索引的字符，索引无效时返回'.'"""
+        return self.CUSTOM_BASE64_ALPHABET[index] if 0 <= index < len(self.CUSTOM_BASE64_ALPHABET) else '.'
+
+    @staticmethod
+    def _extract_bits(value: int, bits: list) -> int:
+        """从给定值中按bits列表顺序提取指定位，组合成新的6位整数"""
+        result = 0
+        for bit in bits:
+            result = (result << 1) | ((value >> bit) & 1)
+        return result
+
+    def _encode_chunk(self, data: bytes) -> dict:
+        """将字节数据分块编码，返回结果和填充后缀"""
+        encoded = []
+        padding = ''
+        for i in range(0, len(data), 3):
+            chunk = data[i:i+3]
+            # 处理完整的3字节块
+            if len(chunk) == 3:
+                c = (chunk[0] << 16) | (chunk[1] << 8) | chunk[2]
+                encoded.append(self._get_base64_char(self._extract_bits(c, self._PART1_BITS)))
+                encoded.append(self._get_base64_char(self._extract_bits(c, self._PART2_BITS)))
+                encoded.append(self._get_base64_char(self._extract_bits(c, self._PART3_BITS)))
+                encoded.append(self._get_base64_char(self._extract_bits(c, self._PART4_BITS)))
+            else:  # 处理余数
+                remainder = len(chunk)
+                c = chunk[0] << 16
+                if remainder == 2:
+                    c |= chunk[1] << 8
+                # 提取前两部分
+                encoded.append(self._get_base64_char(self._extract_bits(c, self._PART1_BITS)))
+                encoded.append(self._get_base64_char(self._extract_bits(c, self._PART2_BITS)))
+                # 根据余数处理第三部分和填充
+                if remainder == 2:
+                    encoded.append(self._get_base64_char(self._extract_bits(c, self._PART3_BITS)))
+                    padding = '.'
+                else:
+                    padding = '..'
+        return {'res': ''.join(encoded), 'end': padding}
+
+    def enc(self, data: bytes) -> str:
+        """加密入口：将字节数据编码为自定义Base64字符串"""
+        result = self._encode_chunk(data)
+        return result['res'] + result['end']
+
+    def key(self) -> bytes:
+        """生成随机密钥：4组3位十六进制字符串拼接"""
+        var = []
+        for _ in range(4):
+            # 生成0x0000-0xFFFF之间的随机数（可能超过，但按原逻辑处理）
+            rand_val = int(65536 * (1 + random.random()))
+            # 格式化为4位十六进制并取后3位
+            hex_str = format(rand_val, '04x')[1:]
+            var.append(hex_str)
+        return ''.join(var).encode()
+
 
 class W:
     @logger.catch
@@ -18,55 +86,6 @@ class W:
         self.c = c
         self.s = s
         self.aeskey = self.Key()
-
-    @logger.catch
-    def _JGH(self, e) -> str:
-        t = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789()"
-        return "." if e < 0 or e >= len(t) else t[e]
-
-    @logger.catch
-    def _JIY(self, e, t) -> int:
-        return (e >> t) & 1
-
-    @logger.catch
-    def _JJM(self, e) -> dict:
-        def t(e, t):
-            n = 0
-            for r in range(24 - 1, -1, -1):
-                if self._JIY(t, r) == 1:
-                    n = (n << 1) + self._JIY(e, r)
-            return n
-
-        n = ""
-        r = ""
-        a = len(e)
-        s = 0
-        while s < a:
-            if s + 2 < a:
-                c = (e[s] << 16) + (e[s + 1] << 8) + e[s + 2]
-                n += (
-                    self._JGH(t(c, 7274496))
-                    + self._JGH(t(c, 9483264))
-                    + self._JGH(t(c, 19220))
-                    + self._JGH(t(c, 235))
-                )
-            else:
-                u = a % 3
-                if u == 2:
-                    c = (e[s] << 16) + (e[s + 1] << 8)
-                    n += self._JGH(t(c, 7274496)) + self._JGH(t(c, 9483264)) + self._JGH(t(c, 19220))
-                    r = "."
-                elif u == 1:
-                    c = e[s] << 16
-                    n += self._JGH(t(c, 7274496)) + self._JGH(t(c, 9483264))
-                    r = ".."
-            s += 3
-        return {"res": n, "end": r}
-
-    @logger.catch
-    def Enc(self, e: list) -> str:
-        t = self._JJM(e)
-        return t["res"] + t["end"]
 
     @logger.catch
     def Key(self) -> bytes:
@@ -108,7 +127,7 @@ class W:
         # h = [116,13,253,xxxxxxxxxxxxxxxx,70,100]
         h = self.AES(data=params)
         # aewrhtjyksudlyi;ulkutyjrhtegwfqed eergtyg
-        p = self.Enc(h)
+        p = GeetestBase().enc(h)
         w = p + u
         return w
 
